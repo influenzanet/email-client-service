@@ -8,6 +8,7 @@ import email_client_service_pb2_grpc
 from random import randint
 from typing import NamedTuple
 from time import sleep
+from smptpclients import NewSmtpClients
 
 class EnvStruct(NamedTuple):
     port: str
@@ -50,6 +51,14 @@ def readEnvironment():
 def getEnv(envKey, defaultValue):
     return os.getenv(envKey, defaultValue)
 
+def initConfig(env):
+    config = dict(
+        serverConfiguration = NewSmtpClients(env.server_config_path),
+        prioServerConfiguration = NewSmtpClients(env.priority_server_config_path),
+    )
+    return config
+
+
 def serve(env: EnvStruct):
     listen = env.port
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -61,6 +70,10 @@ def serve(env: EnvStruct):
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig()
-    env = readEnvironment()
-    serve(env)
+    try:
+        logging.basicConfig()
+        env = readEnvironment()
+        config = initConfig(env)
+        serve(env)
+    except Exception as e:
+        logging.error(e)
