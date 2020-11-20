@@ -10,10 +10,10 @@ import grpc
 import constants
 import email_client_service_pb2
 import email_client_service_pb2_grpc
-from smptpclients import NewSmtpClients
+from smptpclients import SMTPClients
 
 
-class EnvStruct(NamedTuple):
+class Environment(NamedTuple):
     port: str
     server_config_path: str
     priority_server_config_path: str
@@ -53,7 +53,7 @@ def read_environment():
         constants.ENV_PRI_CONFIG_FOLDER, constants.PRIORITY_SERVER_CONFIG_PATH) \
         + constants.PRIORITY_SERVER_FILE
 
-    return EnvStruct(port, server_config_path, priority_server_config_path)
+    return Environment(port, server_config_path, priority_server_config_path)
 
 
 def get_env(envKey, defaultValue):
@@ -62,14 +62,19 @@ def get_env(envKey, defaultValue):
 
 def int_config(env):
     config = dict(
-        serverConfiguration = NewSmtpClients(env.server_config_path),
-        prioServerConfiguration=NewSmtpClients(
-            env.priority_server_config_path),
+        serverConfiguration=SMTPClients(
+            env.server_config_path,
+            0
+        ),
+        prioServerConfiguration=SMTPClients(
+            env.priority_server_config_path,
+            0
+        ),
     )
     return config
 
 
-def serve(env: EnvStruct):
+def serve(env: Environment):
     listen = env.port
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     email_client_service_pb2_grpc.add_EmailClientServiceApiServicer_to_server(

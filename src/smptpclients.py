@@ -2,23 +2,20 @@ from util import load_yaml
 
 
 class SMTPClients(object):
-    def __init__(self, servers, counter, connectionPool):
-        self.servers = servers
+
+    def __init__(self, configFilePath, counter):
+        self.servers = self.load_client_configuration(configFilePath)
         self.counter = counter
-        self.connectionPool = connectionPool
+        self.connectionPool = self.init_connection_pool(self.servers)
 
+    def load_client_configuration(self, configFilePath: str):
+        """
+        docstring
+        """
+        return load_yaml(configFilePath)
 
-def NewSmtpClients(configFilePath: str):
-    serverList = load_yaml(configFilePath)
-    clients = SMTPClients(
-        servers = serverList,
-        counter = 0,
-        connectionPool = init_connection_pool(serverList),
-    )
-    return clients
-
-# TODO CONNECTION POOLS
-
-
-def init_connection_pool(serverList):
-    return
+    def init_connection_pool(self, serverList):
+        """
+        docstring
+        """
+        return 1
