@@ -1,4 +1,4 @@
-from util import *
+from util import load_yaml
 
 
 class SMTPClients(object):
@@ -7,15 +7,18 @@ class SMTPClients(object):
         self.counter = counter
         self.connectionPool = connectionPool
 
-def NewSmtpClients(configFilePath: str):
-	serverList = loadYaml(configFilePath)
-	clients = SMTPClients(
-		servers = serverList,
-		counter = 0,
-		connectionPool = initConnectionPool(serverList),
-    )
-	return clients
 
-#TODO CONNECTION POOLS
-def initConnectionPool(serverList):
+def NewSmtpClients(configFilePath: str):
+    serverList = load_yaml(configFilePath)
+    clients = SMTPClients(
+        servers = serverList,
+        counter = 0,
+        connectionPool = init_connection_pool(serverList),
+    )
+    return clients
+
+# TODO CONNECTION POOLS
+
+
+def init_connection_pool(serverList):
     return

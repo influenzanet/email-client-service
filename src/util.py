@@ -1,10 +1,11 @@
 import yaml
 
-def loadYaml(path: str):
+
+def load_yaml(path: str):
     with open(path) as f:
         data = yaml.load(f)
-    return validateYaml(data)
+    return validate_yaml(data)
 
-#TODO VALIDATION
-def validateYaml(data):
+# TODO VALIDATION
+def validate_yaml(data):
     return data
