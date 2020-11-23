@@ -62,11 +62,11 @@ def get_env(envKey, defaultValue):
 
 def int_config(env):
     config = dict(
-        serverConfiguration=SMTPClients(
+        server_configuration=SMTPClients(
             env.server_config_path,
             0
         ),
-        prioServerConfiguration=SMTPClients(
+        prio_server_configuration=SMTPClients(
             env.priority_server_config_path,
             0
         ),
