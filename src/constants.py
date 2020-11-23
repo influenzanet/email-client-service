@@ -14,3 +14,8 @@ SERVER_FILE = '/smtp-servers.yaml'
 ENV_LISTEN_PORT = 'EMAIL_CLIENT_SERVICE_LISTEN_PORT'
 ENV_CONFIG_FOLDER = 'MESSAGING_CONFIG_FOLDER'
 ENV_PRI_CONFIG_FOLDER = 'MESSAGING_CONFIG_FOLDER'
+
+# ----- VALIDATION CONSTANTS ------------- [Required fields for YAML validation]
+KEY_SEPARATOR = ','
+REQUIRED_YAML_KEYS = 'from, sender, replyTo, servers'
+REQUIRED_SERVER_KEYS = 'host, port, connections, auth'
