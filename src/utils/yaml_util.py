@@ -1,5 +1,5 @@
 import yaml
-from constants import REQUIRED_YAML_KEYS, KEY_SEPARATOR, REQUIRED_SERVER_KEYS
+from constants.constants import REQUIRED_YAML_KEYS, KEY_SEPARATOR, REQUIRED_SERVER_KEYS
 
 
 def load_yaml(path: str):

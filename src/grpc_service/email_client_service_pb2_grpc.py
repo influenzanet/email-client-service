@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import email_client_service_pb2 as email__client__service__pb2
+import grpc_service.email_client_service_pb2 as email__client__service__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
@@ -43,7 +43,7 @@ class EmailClientServiceApiServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_EmailClientServiceApiServicer_to_server(servicer, server):
+def add_EmailClientServiceApiServicer_to_server(servicer, server, config):
     rpc_method_handlers = {
             'Status': grpc.unary_unary_rpc_method_handler(
                     servicer.Status,
@@ -56,6 +56,7 @@ def add_EmailClientServiceApiServicer_to_server(servicer, server):
                     response_serializer=email__client__service__pb2.ServiceStatus.SerializeToString,
             ),
     }
+    print(config)
     generic_handler = grpc.method_handlers_generic_handler(
             'influenzanet.email_client_service.EmailClientServiceApi', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))

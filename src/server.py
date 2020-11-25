@@ -6,11 +6,14 @@ from typing import NamedTuple
 from time import sleep
 
 import grpc
+from email.message import EmailMessage
 
-import constants
-import email_client_service_pb2
-import email_client_service_pb2_grpc
-from smptpclients import SMTPClients
+import constants.constants as constants
+import grpc_service.email_client_service_pb2 as email_client_service_pb2
+import grpc_service.email_client_service_pb2_grpc as email_client_service_pb2_grpc
+from typings.smptpclients import SMTPClients
+
+config = {}
 
 
 class Environment(NamedTuple):
@@ -31,13 +34,24 @@ class EmailClientServicer(email_client_service_pb2_grpc.EmailClientServiceApiSer
     def SendEmail(self, request, context):
         print(request.to)
         # print(request.content)
-        # print(context)
+        print(context)
+        print(config)
+        msg = construct_email()
+        # TODO - FETCH CONNECTION FROM CONFIG POOL AND SEND
+        # Retries fetching connection with some backoff some limit on number of attempts (timeouts)
+        # If connection
 
         if randint(1, 100) > 75:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('message sending failed')
         sleep(0.3)
         return email_client_service_pb2.ServiceStatus()
+
+
+def construct_email():
+    # TODO SET CONTENT, TO, FROM, CC, BCC
+    msg = EmailMessage()
+    return msg
 
 
 def read_environment():
@@ -74,11 +88,13 @@ def int_config(env):
     return config
 
 
-def serve(env: Environment):
+def serve(env: Environment, config):
     listen = env.port
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=10))
+    server.add_generic_rpc_handlers
     email_client_service_pb2_grpc.add_EmailClientServiceApiServicer_to_server(
-        EmailClientServicer(), server
+        EmailClientServicer(), server, config
     )
     server.add_insecure_port('[::]:' + listen)
     server.start()
@@ -90,6 +106,6 @@ if __name__ == '__main__':
         logging.basicConfig()
         env = read_environment()
         config = int_config(env)
-        serve(env)
+        serve(env, config)
     except Exception as e:
         logging.error(e)
