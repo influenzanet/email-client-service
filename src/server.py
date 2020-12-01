@@ -44,21 +44,25 @@ class EmailClientServicer(email_client_service_pb2_grpc.EmailClientServiceApiSer
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('message sending failed')
         return email_client_service_pb2.ServiceStatus()
-        
+
     def request_connection(self, is_high_priority=False) -> smtplib.SMTP:
         if is_high_priority:
-            return config['prio_server_configuration'].get_connection()
-        return config['server_configuration'].get_connection()
+            return config[constants.KEY_PRIORITY_SERVER_CONFIG].get_connection()
+        return config[constants.KEY_SERVER_CONFIG].get_connection()
 
 
 def construct_email(request):
+    # TODO Add CC/BCC support & header overrides
+    sender = config[constants.KEY_SERVER_CONFIG].get_sender()
+    if request.high_prio:
+        sender = config[constants.KEY_PRIORITY_SERVER_CONFIG].get_sender()
     msg = EmailMessage()
     msg.set_content(request.content)
-    msg['Subject'] = request.subject
-    msg['From'] = "CASE_mailer@case.com"
-    msg['To'] = request.to
-    msg['Cc'] = ""
-    msg['Bcc'] = ""
+    msg[constants.KEY_SUBJECT] = request.subject
+    msg[constants.KEY_FROM] = sender
+    msg[constants.KEY_TO] = request.to
+    msg[constants.KEY_CC] = ''
+    msg[constants.KEY_BC] = ''
     return msg
 
 

@@ -1,5 +1,6 @@
 import smtplib
 
+import constants.constants as constants
 import utils.yaml_util as yaml_util
 from typings.servers import Server
 from typings.connection_pool import ConnectionPool
@@ -12,7 +13,7 @@ class SMTPClients(object):
         self.connection_config = self.load_client_configuration(
             config_file_path)
         self.connection_pool: ConnectionPool = self.init_connection_pool(
-            self.connection_config['servers'])
+            self.connection_config[constants.KEY_SERVERS])
 
     def load_client_configuration(self, configFilePath: str):
         """
@@ -36,3 +37,6 @@ class SMTPClients(object):
 
     def get_connection(self):
         return self.connection_pool.get_connection()
+    
+    def get_sender(self):
+        return self.connection_config[constants.KEY_SENDER]

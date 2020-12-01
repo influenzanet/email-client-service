@@ -4,6 +4,10 @@ DEFAULT_LISTEN_PORT = '5005'
 # ----- CONFIG CONSTANTS ----- [Path for configurations]
 PRIORITY_SERVER_CONFIG_PATH = '/config'
 SERVER_CONFIG_PATH = '/config'
+KEY_SERVER_CONFIG = 'server_configuration'
+KEY_PRIORITY_SERVER_CONFIG = 'prio_server_configuration'
+KEY_SERVERS = 'servers'
+KEY_SENDER = 'sender'
 
 
 # ----- FILE CONSTANTS ------- [File names/path]
@@ -24,3 +28,10 @@ REQUIRED_SERVER_KEYS = 'host, port, connections, auth'
 IS_AUTH_REQUIRED = 'False'
 MAX_RECONNECT_ATTEMPTS = '3'
 INITIAL_RECONNECT_WAIT = '0.5' # In seconds
+
+# ----- EMAIL CONSTANTS --------- [Keys for email message construction]
+KEY_SUBJECT = 'Subject'
+KEY_FROM = 'From'
+KEY_TO = 'To'
+KEY_CC = 'Cc'
+KEY_BC = 'Bcc'
