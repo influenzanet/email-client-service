@@ -1,35 +1,34 @@
+import threading
 import smtplib
+
+from typings.connection import Connection
 
 
 class ConnectionPool(object):
 
-    def __init__(self, connections=[]):
-        self.connections = connections
+    def __init__(self, pool=[Connection]):
+        self.connection_pool = pool
         self.counter = 0
+        self.lock = threading.Lock()
 
     def get_connection(self):
-        connection = self.connections[]
-        if not connection:
-            raise Exception("Message to ask caller to wait")
-        if not self.is_connected(connection):
-            return self.reconnect(connection)
-        return connection
+        self.counter = self.counter % len(
+            self.connection_pool)
+        connection_object = self.connection_pool[self.counter]
+        self.counter += 1
 
-    def is_connected(self, connection: smtplib.SMTP_SSL):
-        try:
-            status = connection.noop()[0]
-        except:  # smtplib.SMTPServerDisconnected
-            status = -1
-        return True if status == 250 else False
+        # Check if connection has not timed out and reconnect if required
+        retrieved_connection = connection_object.connection
+        if not retrieved_connection:
+            raise Exception("Failed to fetch connection")
+        if not connection_object.is_connected():
+            return self.reconnect(
+                connection_object)
+        return retrieved_connection
 
-    def return_connection(self, connection):
-        self.connections.append(connection)
-
-    def reconnect(self, connection: smtplib.SMTP_SSL):
-        # TODO Reconnect existing connection if possible
-        # Retry mechanism (and timeouts)
-        new_connection = smtplib.SMTP_SSL(
-            host=connection._host, port=connection.default_port)
-        new_connection.login(user=connection.user,
-                             password=connection.password)
-        return new_connection
+    def reconnect(self, connection_object):
+        return connection_object.reconnect()
+        """ with self.lock:
+            if not connection_object.is_connected():
+                return connection_object.reconnect()
+            return connection_object.connection """

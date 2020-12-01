@@ -3,39 +3,36 @@ import smtplib
 import utils.yaml_util as yaml_util
 from typings.servers import Server
 from typings.connection_pool import ConnectionPool
+from typings.connection import Connection
 
 
 class SMTPClients(object):
 
-    def __init__(self, config_file_path, counter):
+    def __init__(self, config_file_path):
         self.connection_config = self.load_client_configuration(
             config_file_path)
-        self.counter = counter
-        self.connection_pool = self.init_connection_pool(
+        self.connection_pool: ConnectionPool = self.init_connection_pool(
             self.connection_config['servers'])
 
     def load_client_configuration(self, configFilePath: str):
         """
-        docstring
+        Read the server configuration file and validate the 
+        existence of the required keys in the configuration
         """
         return yaml_util.load_yaml(configFilePath)
 
-    def init_connection_pool(self, server_list):
+    def init_connection_pool(self, server_list) -> ConnectionPool:
         """
-        docstring
+        Create a list of connections for each server specified in the
+        server configuration file.
         """
         connection_pool = []
         for server_item in server_list:
             server = Server(server_item)
-            connections = [self.create_connection(
+            connections = [Connection(
                 server) for i in range(server.connections)]
             connection_pool.extend(connections)
         return ConnectionPool(connection_pool)
 
-    def create_connection(self, server):
-        """
-        docstring
-        """
-        connection = smtplib.SMTP_SSL(host=server.host, port=server.port)
-        connection.login(user=server.auth.user, password=server.auth.password)
-        return connection
+    def get_connection(self):
+        return self.connection_pool.get_connection()

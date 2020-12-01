@@ -19,3 +19,8 @@ ENV_PRI_CONFIG_FOLDER = 'MESSAGING_CONFIG_FOLDER'
 KEY_SEPARATOR = ','
 REQUIRED_YAML_KEYS = 'from, sender, replyTo, servers'
 REQUIRED_SERVER_KEYS = 'host, port, connections, auth'
+
+# ----- CONNECTION CONSTANTS ------------- [Parameters for connection retries and backoff]
+IS_AUTH_REQUIRED = 'False'
+MAX_RECONNECT_ATTEMPTS = '3'
+INITIAL_RECONNECT_WAIT = '0.5' # In seconds
