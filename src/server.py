@@ -1,11 +1,13 @@
 import os
 import logging
+import threading
 from concurrent import futures
 from random import randint
 from typing import NamedTuple
 from time import sleep
 
 import grpc
+import smtplib
 from email.message import EmailMessage
 
 import constants.constants as constants
@@ -26,31 +28,37 @@ class EmailClientServicer(email_client_service_pb2_grpc.EmailClientServiceApiSer
     """Provides methods that implement functionality of email client server."""
 
     def __init__(self):
+        self.lock = threading.Lock()
         pass
 
     def Status(self, request, context):
         pass
 
     def SendEmail(self, request, context):
-        print(request.to)
-        # print(request.content)
-        print(context)
-        print(config)
-        msg = construct_email()
-        # TODO - FETCH CONNECTION FROM CONFIG POOL AND SEND
-        # Retries fetching connection with some backoff some limit on number of attempts (timeouts)
-        # If connection
-
-        if randint(1, 100) > 75:
+        try:
+            with self.lock:
+                connection = self.request_connection(request.high_prio)
+                connection.send_message(construct_email(request))
+        except Exception as e:
+            logging.error(e)
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('message sending failed')
-        sleep(0.3)
         return email_client_service_pb2.ServiceStatus()
+        
+    def request_connection(self, is_high_priority=False) -> smtplib.SMTP:
+        if is_high_priority:
+            return config['prio_server_configuration'].get_connection()
+        return config['server_configuration'].get_connection()
 
 
-def construct_email():
-    # TODO SET CONTENT, TO, FROM, CC, BCC
+def construct_email(request):
     msg = EmailMessage()
+    msg.set_content(request.content)
+    msg['Subject'] = request.subject
+    msg['From'] = "CASE_mailer@case.com"
+    msg['To'] = request.to
+    msg['Cc'] = ""
+    msg['Bcc'] = ""
     return msg
 
 
@@ -77,24 +85,22 @@ def get_env(envKey, defaultValue):
 def int_config(env):
     config = dict(
         server_configuration=SMTPClients(
-            env.server_config_path,
-            0
+            env.server_config_path
         ),
         prio_server_configuration=SMTPClients(
-            env.priority_server_config_path,
-            0
+            env.priority_server_config_path
         ),
     )
     return config
 
 
-def serve(env: Environment, config):
+def serve(env: Environment):
     listen = env.port
     server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=10))
+        futures.ThreadPoolExecutor(max_workers=3))
     server.add_generic_rpc_handlers
     email_client_service_pb2_grpc.add_EmailClientServiceApiServicer_to_server(
-        EmailClientServicer(), server, config
+        EmailClientServicer(), server
     )
     server.add_insecure_port('[::]:' + listen)
     server.start()
@@ -106,6 +112,6 @@ if __name__ == '__main__':
         logging.basicConfig()
         env = read_environment()
         config = int_config(env)
-        serve(env, config)
+        serve(env)
     except Exception as e:
         logging.error(e)

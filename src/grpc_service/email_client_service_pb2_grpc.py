@@ -43,7 +43,7 @@ class EmailClientServiceApiServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_EmailClientServiceApiServicer_to_server(servicer, server, config):
+def add_EmailClientServiceApiServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Status': grpc.unary_unary_rpc_method_handler(
                     servicer.Status,
@@ -56,7 +56,6 @@ def add_EmailClientServiceApiServicer_to_server(servicer, server, config):
                     response_serializer=email__client__service__pb2.ServiceStatus.SerializeToString,
             ),
     }
-    print(config)
     generic_handler = grpc.method_handlers_generic_handler(
             'influenzanet.email_client_service.EmailClientServiceApi', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
